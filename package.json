@@ -4,7 +4,10 @@
   "private": true,
   "license": "MIT",
   "description": "Two-way flight synchronisation between Tabbr and ZweefApp (a Tabbr module with a server-side part)",
-  "repository": { "type": "git", "url": "git+https://github.com/systemworks-bv/tabbr-module-zweefapp.git" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/systemworks-bv/tabbr-module-zweefapp.git"
+  },
   "scripts": {
     "setup": "tabbr-module init",
     "start": "ng serve",
@@ -15,6 +18,7 @@
     "fetch-types": "tabbr-module fetch-types",
     "link-local": "yalc add @tabbr/module-cli @tabbr/module-sdk",
     "unlink-local": "yalc remove @tabbr/module-cli @tabbr/module-sdk && npm install",
+    "export:public": "node scripts/export-public.mjs",
     "mock:up": "docker compose -f dev/mock/docker-compose.yml up -d",
     "mock:down": "docker compose -f dev/mock/docker-compose.yml down",
     "mock:seed": "node dev/mock/seed.mjs",
@@ -32,7 +36,7 @@
     "@angular/platform-browser-dynamic": "20.3.18",
     "@angular/router": "20.3.18",
     "@jsverse/transloco": "7.6.1",
-    "@tabbr/module-sdk": "^0.2.0",
+    "@tabbr/module-sdk": "^0.3.0",
     "keycloak-angular": "^20.1.0",
     "keycloak-js": "^18.0.1",
     "rxjs": "7.8.2",
@@ -44,7 +48,7 @@
     "@angular/build": "20.3.19",
     "@angular/cli": "20.3.19",
     "@angular/compiler-cli": "20.3.18",
-    "@tabbr/module-cli": "^0.1.0",
+    "@tabbr/module-cli": "^0.2.0",
     "es-module-shims": "^1.10.1",
     "esbuild": "^0.28.2",
     "typescript": "5.8.3"

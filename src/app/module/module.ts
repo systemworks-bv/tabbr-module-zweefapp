@@ -16,7 +16,7 @@ export class Module extends SimpleModuleBase {
    * The module's translations, for the shell too: it translates the module's title (tabbr.config.json "title" is the key,
    * e.g. "title") in its settings list and page header from these, like it does for its own modules.
    */
-  static readonly i18nBundles = I18N_BUNDLES;
+  static override readonly i18nBundles = I18N_BUNDLES;
 
   constructor() {
     // No club-facing pages (routes) or menu entries - settings only.

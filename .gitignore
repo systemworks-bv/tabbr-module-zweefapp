@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.angular/
+out-tsc/
+# Generated on every build by @angular-architects/native-federation
+tsconfig.federation.json
+# Club-specific typings written by "npm run fetch-types" - regenerate instead of committing
+src/types/tabbr/
+.idea/
+.vscode/
+.yalc/
+yalc.lock

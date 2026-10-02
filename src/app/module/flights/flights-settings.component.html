@@ -1,0 +1,66 @@
+<div *transloco="let t; prefix: moduleId">
+  <label style="display: flex; align-items: center; gap: 0.5rem; margin: 1rem 0;">
+    <input type="checkbox" [(ngModel)]="model.flights.enabled" />
+    {{ t('flights.enabled') }}
+  </label>
+  @if (model.flights.enabled && !model.enabled) {
+    <p style="color: #b45309; font-size: 0.85rem;">{{ t('flights.connectionOff') }}</p>
+  }
+
+  <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+    <label>
+      {{ t('lookbackDays') }}
+      <input type="number" [(ngModel)]="model.flights.lookbackDays" min="1" max="60" style="width: 6rem;" />
+      @for (issue of issuesOf('lookbackDays'); track issue) {
+        <span style="display: block; font-size: 0.85rem; color: #b91c1c;">⚠ {{ t('issue.' + issue.code, issue.params ?? {}) }}</span>
+      }
+    </label>
+
+    <label>
+      {{ t('flightIdField') }}
+      <input type="text" [(ngModel)]="model.flights.idField" placeholder="ZA_id" style="width: 10rem;" spellcheck="false" />
+      @for (issue of issuesOf('flightIdField'); track issue) {
+        <span style="display: block; font-size: 0.85rem; color: #b91c1c;">⚠ {{ t('issue.' + issue.code, issue.params ?? {}) }}</span>
+      }
+    </label>
+  </div>
+
+  <h2 style="margin-top: 1.5rem;">{{ t('mapping.title') }}</h2>
+  <app-mapping-editor [rows]="model.flights.mapping" [fields]="fields" [issues]="issues" (modified)="modified.emit()" />
+
+  <div style="margin-top: 1.5rem; display: flex; gap: 0.75rem;">
+    <button type="button" (click)="resyncNow()" [disabled]="resyncing() || !model.enabled || !model.flights.enabled || dirty">
+      {{ resyncing() ? t('resync.running') : t('resync') }}
+    </button>
+    @if (dirty) {
+      <small style="align-self: center; opacity: 0.8;">{{ t('resync.saveFirst') }}</small>
+    }
+  </div>
+  @if (resyncError()) {
+    <p style="color: #b91c1c;">{{ resyncError() }}</p>
+  }
+
+  <h2 style="margin-top: 2rem;">{{ t('status.title') }}</h2>
+  <table style="border-collapse: collapse;">
+    <tr>
+      <td style="padding: 0.25rem 1rem 0.25rem 0;">{{ t('status.lastPush') }}</td>
+      <td>{{ model.flightsPushStatus.at || t('status.never') }}</td>
+    </tr>
+    @if (model.flightsPushStatus.error) {
+      <tr>
+        <td style="padding: 0.25rem 1rem 0.25rem 0;">{{ t('status.lastPushError') }}</td>
+        <td style="color: #b91c1c;">{{ model.flightsPushStatus.error }}</td>
+      </tr>
+    }
+    <tr>
+      <td style="padding: 0.25rem 1rem 0.25rem 0;">{{ t('status.lastPull') }}</td>
+      <td>{{ model.flightsPullStatus.at || t('status.never') }}</td>
+    </tr>
+    @if (model.flightsPullStatus.error) {
+      <tr>
+        <td style="padding: 0.25rem 1rem 0.25rem 0;">{{ t('status.lastPullError') }}</td>
+        <td style="color: #b91c1c;">{{ model.flightsPullStatus.error }}</td>
+      </tr>
+    }
+  </table>
+</div>

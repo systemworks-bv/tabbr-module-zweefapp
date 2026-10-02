@@ -1,0 +1,11 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPattern": ".*/api/flights.json"
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "body": "{\"uuid\": \"mock-flight-{{randomValue type='UUID'}}\"}"
+  }
+}

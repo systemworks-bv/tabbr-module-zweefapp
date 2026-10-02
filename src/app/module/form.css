@@ -1,0 +1,3 @@
+/* The basic look of the plain inputs on the settings tabs. */
+input[type=text], input[type=password], input[type=number], select { border: 1px solid #8886; border-radius: 4px; padding: 0.25rem 0.5rem; background: transparent; color: inherit; font: inherit; }
+label > input[type=text], label > input[type=password], label > input[type=number] { display: block; margin-top: 0.2rem; }

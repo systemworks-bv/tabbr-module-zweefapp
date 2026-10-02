@@ -1,0 +1,52 @@
+{
+  "name": "tabbr-zweefapp-module",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Two-way flight synchronisation between Tabbr and ZweefApp (a Tabbr module with a server-side part)",
+  "repository": { "type": "git", "url": "git+https://github.com/systemworks-bv/tabbr-module-zweefapp.git" },
+  "scripts": {
+    "setup": "tabbr-module init",
+    "start": "ng serve",
+    "build": "ng build --configuration production",
+    "typecheck": "tsc -p backend/tsconfig.json",
+    "publish-module": "node scripts/check-cli.mjs && tabbr-module publish",
+    "publish-local": "node scripts/check-cli.mjs && tabbr-module publish --local",
+    "fetch-types": "tabbr-module fetch-types",
+    "link-local": "yalc add @tabbr/module-cli @tabbr/module-sdk",
+    "unlink-local": "yalc remove @tabbr/module-cli @tabbr/module-sdk && npm install",
+    "mock:up": "docker compose -f dev/mock/docker-compose.yml up -d",
+    "mock:down": "docker compose -f dev/mock/docker-compose.yml down",
+    "mock:seed": "node dev/mock/seed.mjs",
+    "mock:watch": "node dev/mock/watch.mjs",
+    "dev:setup": "node dev/setup-local.mjs",
+    "test": "node --test backend/test/mapping.test.mjs backend/test/validation.test.mjs backend/test/typecheck.test.mjs backend/test/settings.test.mjs"
+  },
+  "dependencies": {
+    "@angular/animations": "20.3.18",
+    "@angular/common": "20.3.18",
+    "@angular/compiler": "20.3.18",
+    "@angular/core": "20.3.18",
+    "@angular/forms": "20.3.18",
+    "@angular/platform-browser": "20.3.18",
+    "@angular/platform-browser-dynamic": "20.3.18",
+    "@angular/router": "20.3.18",
+    "@jsverse/transloco": "7.6.1",
+    "@tabbr/module-sdk": "^0.2.0",
+    "keycloak-angular": "^20.1.0",
+    "keycloak-js": "^18.0.1",
+    "rxjs": "7.8.2",
+    "tslib": "2.5.2",
+    "zone.js": "0.15.1"
+  },
+  "devDependencies": {
+    "@angular-architects/native-federation": "20.3.1",
+    "@angular/build": "20.3.19",
+    "@angular/cli": "20.3.19",
+    "@angular/compiler-cli": "20.3.18",
+    "@tabbr/module-cli": "^0.1.0",
+    "es-module-shims": "^1.10.1",
+    "esbuild": "^0.28.2",
+    "typescript": "5.8.3"
+  }
+}

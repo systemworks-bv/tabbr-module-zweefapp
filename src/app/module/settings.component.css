@@ -1,0 +1,9 @@
+.page { max-width: 900px; }
+.summary { font-weight: 600; margin: 0.5rem 0; color: #b45309; }
+.summary.error { color: #b91c1c; }
+.save-error { color: #b91c1c; }
+
+.tabs { display: flex; gap: 0.25rem; margin: 1rem 0 0.5rem; border-bottom: 1px solid #8884; }
+.tabs button { background: transparent; color: inherit; border: 0; border-bottom: 2px solid transparent; padding: 0.5rem 1rem; cursor: pointer; font: inherit; }
+.tabs button.active { border-bottom-color: #1d4ed8; font-weight: 600; }
+.tabs .count { display: inline-block; min-width: 1.2rem; margin-left: 0.3rem; padding: 0 0.35rem; border-radius: 999px; background: #b91c1c; color: #fff; font-size: 0.75rem; text-align: center; }

@@ -1,0 +1,36 @@
+<ng-template #settingsTemplate>
+  <div class="page" *transloco="let t; prefix: moduleId" (input)="touch()" (change)="touch()">
+    @if (loading()) {
+      <p>{{ t('loading') }}</p>
+    } @else {
+      @if (issues().length > 0) {
+        <p class="summary" [class.error]="!valid()">
+          ⚠ {{ t('issue.summary', { errors: errorCount(), warnings: warningCount() }) }}
+          @if (!valid()) { {{ t('issue.cannotSave') }} }
+        </p>
+      }
+
+      <nav class="tabs" role="tablist">
+        @for (area of areas; track area) {
+          <button type="button" role="tab" [class.active]="tab() === area" [attr.aria-selected]="tab() === area" (click)="tab.set(area)">
+            {{ t('tab.' + area) }}
+            @if (errorsOf(area) > 0) { <span class="count" [title]="t('issue.summary', { errors: errorsOf(area), warnings: 0 })">{{ errorsOf(area) }}</span> }
+          </button>
+        }
+      </nav>
+
+      @switch (tab()) {
+        @case ('connection') {
+          <app-connection-settings [model]="model" [issues]="issuesOf('connection')" />
+        }
+        @case ('flights') {
+          <app-flights-settings [model]="model" [fields]="fieldCatalog()" [issues]="issuesOf('flights')" [dirty]="dirty()" (modified)="touch()" (resynced)="load()" />
+        }
+      }
+
+      @if (saveError()) {
+        <p class="save-error">{{ saveError() }}</p>
+      }
+    }
+  </div>
+</ng-template>

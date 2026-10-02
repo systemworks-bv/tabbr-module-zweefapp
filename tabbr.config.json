@@ -1,0 +1,42 @@
+{
+  "club": "",
+  "apiHost": "https://api.tabbr.be",
+  "moduleId": "zweefapp",
+  "title": "ZweefApp",
+  "exposedModule": "./Module",
+  "exportName": "Module",
+  "backend": {
+    "entry": "backend/src/index.ts",
+    "allowedHosts": [
+      "admin.gliding.app"
+    ],
+    "secretFieldNames": [
+      "apiKey"
+    ],
+    "triggers": [
+      {
+        "type": "CRON",
+        "name": "pollFlights",
+        "cronExpression": "*/5 * * * *",
+        "handler": "pollFlights"
+      },
+      {
+        "type": "ENTITY_HOOK",
+        "name": "onFlightCreated",
+        "entity": "flight",
+        "event": "onCreate",
+        "handler": "onFlightSaved"
+      },
+      {
+        "type": "ENTITY_HOOK",
+        "name": "onFlightUpdated",
+        "entity": "flight",
+        "event": "onUpdate",
+        "handler": "onFlightSaved"
+      }
+    ],
+    "localAllowedHosts": [
+      "localhost"
+    ]
+  }
+}

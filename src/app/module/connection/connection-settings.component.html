@@ -1,0 +1,35 @@
+<div *transloco="let t; prefix: moduleId">
+  <label style="display: flex; align-items: center; gap: 0.5rem; margin: 1rem 0;">
+    <input type="checkbox" [(ngModel)]="model.enabled" />
+    {{ t('enabled') }}
+  </label>
+
+  <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+    <label>
+      {{ t('zweefAppClubCode') }}
+      <input type="text" [(ngModel)]="model.zweefAppClubCode" placeholder="myclub" style="width: 100%;" spellcheck="false" />
+      @for (issue of issuesOf('zweefAppClubCode'); track issue) {
+        <span style="display: block; font-size: 0.85rem; color: #b91c1c;">⚠ {{ t('issue.' + issue.code, issue.params ?? {}) }}</span>
+      }
+    </label>
+
+    <label>
+      {{ t('apiKey') }}
+      <span style="font-weight: 600;">
+        {{ model.apiKeyConfigured ? t('apiKey.configured') : t('apiKey.notConfigured') }}
+      </span>
+      <input type="password" [(ngModel)]="model.apiKey" [placeholder]="t('apiKey.placeholder')" style="width: 100%;" />
+      @for (issue of issuesOf('apiKey'); track issue) {
+        <span style="display: block; font-size: 0.85rem; color: #b91c1c;">⚠ {{ t('issue.' + issue.code, issue.params ?? {}) }}</span>
+      }
+    </label>
+
+    <label>
+      {{ t('timeZone') }}
+      <input type="text" [(ngModel)]="model.timeZone" placeholder="Europe/Brussels" style="width: 14rem;" spellcheck="false" />
+      @for (issue of issuesOf('timeZone'); track issue) {
+        <span style="display: block; font-size: 0.85rem; color: #b91c1c;">⚠ {{ t('issue.' + issue.code, issue.params ?? {}) }}</span>
+      }
+    </label>
+  </div>
+</div>

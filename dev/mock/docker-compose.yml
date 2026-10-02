@@ -1,0 +1,12 @@
+# A fake ZweefApp for local development of this module: WireMock answering the endpoints the module uses
+# (see mappings/). Port 9998 on purpose - not 9999, which tabbr-api-server's own zweef-app-mock uses.
+#   npm run mock:up | mock:down | mock:watch | mock:seed
+services:
+  zweefapp-mock:
+    image: wiremock/wiremock:latest
+    container_name: tabbr-zweefapp-module-mock
+    ports:
+      - "9998:8080"
+    volumes:
+      - ./mappings:/home/wiremock/mappings
+    command: --global-response-templating --verbose

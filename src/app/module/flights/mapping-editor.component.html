@@ -1,0 +1,208 @@
+<div *transloco="let t; prefix: moduleId">
+  <p class="hint" style="margin: 0 0 0.75rem;">{{ t('mapping.intro') }}</p>
+
+  @for (row of rows; track row; let i = $index) {
+    <div class="row" [class.has-error]="severityOf(i) === 'error'" [class.has-warning]="severityOf(i) === 'warning'">
+      <div class="grid">
+        <label class="field">
+          <span><span class="badge za">ZweefApp</span></span>
+          <select [(ngModel)]="row.za" (ngModelChange)="touch()">
+            @for (field of zaFields; track field.key) { <option [value]="field.key">{{ field.label }}</option> }
+          </select>
+        </label>
+
+        <div class="directions">
+          <label><input type="checkbox" [(ngModel)]="row.push" (ngModelChange)="touch()" /> Tabbr → ZweefApp <small>({{ t('mapping.push') }})</small></label>
+          <label><input type="checkbox" [(ngModel)]="row.pull" (ngModelChange)="touch()" /> ZweefApp → Tabbr <small>({{ t('mapping.pull') }})</small></label>
+        </div>
+
+        <label class="field">
+          <span><span class="badge tabbr">Tabbr</span> {{ t('mapping.tabbrFieldLabel') }}</span>
+          <span style="display: flex; gap: 0.4rem;">
+            <select [ngModel]="row.tabbrField" (ngModelChange)="setTabbrField(row, $event)" [class.invalid]="hasIssue(i, 'tabbrField')">
+              <option value="" disabled>{{ t('mapping.chooseField') }}</option>
+              @for (field of options(row.tabbrField, fields?.flight); track field.name) {
+                <option [value]="field.name">{{ label(field, row.tabbrField) }}</option>
+              }
+            </select>
+            <button type="button" (click)="move(i, -1)" [disabled]="i === 0" [attr.aria-label]="t('mapping.moveUp')" [title]="t('mapping.moveUp')">↑</button>
+            <button type="button" (click)="move(i, 1)" [disabled]="i === rows.length - 1" [attr.aria-label]="t('mapping.moveDown')" [title]="t('mapping.moveDown')">↓</button>
+            <button type="button" (click)="remove(i)" [attr.aria-label]="t('mapping.remove')" [title]="t('mapping.remove')">✕</button>
+          </span>
+        </label>
+      </div>
+
+      @switch (kindOf(row)) {
+        @case ('bool') {
+          <div style="margin-top: 0.5rem;">
+            <label style="display: block;">
+              <input type="radio" [name]="'flag' + i" [checked]="row.flagValue == null" (change)="setFlagMode(row, 'boolean')" />
+              {{ t('mapping.flagBoolean') }}
+            </label>
+            <label style="display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;">
+              <input type="radio" [name]="'flag' + i" [checked]="row.flagValue != null" (change)="setFlagMode(row, 'text')" />
+              {{ t('mapping.flagText') }}
+              @if (row.flagValue != null) {
+                @switch (flagKind(row)) {
+                  @case ('list') { <span>{{ t('mapping.flagContainsList') }}</span> }
+                  @case ('choice') { <span>{{ t('mapping.flagEqualsChoice') }}</span> }
+                  @default {
+                    <select [ngModel]="row.flagMatch ?? 'equals'" (ngModelChange)="row.flagMatch = $event; touch()" style="width: auto;">
+                      <option value="equals">{{ t('mapping.flagEquals') }}</option>
+                      <option value="contains">{{ t('mapping.flagContains') }}</option>
+                    </select>
+                  }
+                }
+                @if (choicesOf(row.tabbrField); as choices) {
+                  @if (flagKind(row) === 'choice') {
+                    @for (box of choiceBoxes(row, choices); track box.value) {
+                      <label style="display: inline-flex; gap: 0.25rem; align-items: center;" [class.invalid]="!box.known">
+                        <input type="checkbox" [ngModel]="box.checked" (ngModelChange)="toggleFlagValue(row, box.value, $event)" />
+                        {{ box.known ? box.name : '⚠ ' + box.name }}
+                      </label>
+                    }
+                  } @else {
+                  <select [ngModel]="row.flagValue" (ngModelChange)="setFlagValue(row, $event)" [class.invalid]="hasIssue(i, 'flag')" style="width: auto; min-width: 10rem;">
+                    <option value="" disabled>{{ t('mapping.chooseValue') }}</option>
+                    @for (choice of withCurrent(choices, row.flagValue); track choice.value) {
+                      <option [value]="choice.value">{{ choice.name }}</option>
+                    }
+                  </select>
+                  }
+                } @else {
+                  <input type="text" [ngModel]="row.flagValue" (ngModelChange)="setFlagValue(row, $event)" [class.invalid]="hasIssue(i, 'flag')" placeholder="TRAINING" style="width: 10rem;" spellcheck="false" />
+                }
+              }
+            </label>
+            @if (describe(row); as d) {
+              <p class="hint">
+                @if (row.push) { {{ d.push }}<br /> }
+                @if (row.pull) { {{ d.pull }} }
+              </p>
+            }
+          </div>
+        }
+        @case ('person') {
+          <ng-container *ngTemplateOutlet="link; context: { row: row, i: i, entity: 'person' }" />
+        }
+        @case ('airplane') {
+          <ng-container *ngTemplateOutlet="link; context: { row: row, i: i, entity: 'airplane' }" />
+        }
+        @case ('startMethod') {
+          <ng-container *ngTemplateOutlet="values; context: { row: row, i: i }" />
+          <label style="display: block; margin-top: 0.3rem;">{{ t('mapping.fallback') }}
+            <input type="text" [(ngModel)]="row.fallback" (ngModelChange)="touch()" placeholder="overig" style="width: 8rem;" spellcheck="false" />
+          </label>
+        }
+        @case ('text') {
+          <ng-container *ngTemplateOutlet="values; context: { row: row, i: i }" />
+        }
+      }
+
+      @if (overriddenBy(i); as later) {
+        <p class="hint">{{ t('mapping.overriddenBy', { rows: later }) }}</p>
+      }
+
+      @for (issue of rowIssues(i); track issue) {
+        <p class="issue" [class.error]="issue.severity === 'error'" [class.warning]="issue.severity === 'warning'">
+          ⚠ {{ t('issue.' + issue.code, issue.params ?? {}) }}
+        </p>
+      }
+
+      <details style="margin-top: 0.5rem;" [open]="isOpen(row)" (toggle)="setOpen(row, $any($event.target).open)">
+        <summary>{{ t('mapping.code') }}</summary>
+        @if (isOpen(row)) {
+          <p class="hint">{{ t('mapping.codeHelp') }}</p>
+          @if (row.push) { <ng-container *ngTemplateOutlet="codeBlock; context: { row: row, dir: 'push' }" /> }
+          @if (row.pull) { <ng-container *ngTemplateOutlet="codeBlock; context: { row: row, dir: 'pull' }" /> }
+        }
+      </details>
+    </div>
+  }
+
+  <div style="display: flex; gap: 0.5rem;">
+    <button type="button" (click)="add()">{{ t('mapping.add') }}</button>
+    <button type="button" (click)="resetToDefault()">{{ t('mapping.reset') }}</button>
+  </div>
+
+  <ng-template #link let-row="row" let-i="i" let-entity="entity">
+    <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
+      <span>{{ t('mapping.linkedBy') }}</span>
+      <select [ngModel]="row.link?.by ?? ''" (ngModelChange)="setLink(row, undefined, $event)" style="width: auto;">
+        <option value="">{{ t('mapping.linkNone') }}</option>
+        @for (by of linkOptions(row); track by) { <option [value]="by">{{ t('mapping.by.' + by) }}</option> }
+      </select>
+      @if (row.link) {
+        <span>{{ t('mapping.linkEquals') }}</span>
+        <span class="badge tabbr">Tabbr</span>
+        <select [ngModel]="row.link.entityField" (ngModelChange)="setLink(row, $event, undefined)" [class.invalid]="hasIssue(i, 'link')" style="width: auto; min-width: 12rem;">
+          <option value="" disabled>{{ t('mapping.chooseField') }}</option>
+          @for (field of options(row.link.entityField, entityFields(entity)); track field.name) {
+            <option [value]="field.name">{{ label(field, row.link.entityField) }}</option>
+          }
+        </select>
+      }
+    </div>
+  </ng-template>
+
+  <ng-template #values let-row="row" let-i="i">
+    <div style="margin-top: 0.5rem;">
+      @for (entry of row.valueMap ?? []; track entry; let j = $index) {
+        <div style="display: flex; gap: 0.4rem; margin-bottom: 0.2rem; align-items: center;">
+          <span class="badge za">ZweefApp</span>
+          <input type="text" [(ngModel)]="entry.za" (ngModelChange)="touch()" [class.invalid]="hasIssue(i, 'values') && !entry.za.trim()" [placeholder]="t('mapping.zweefAppValue')" style="width: 9rem;" spellcheck="false" />
+          <span>↔</span>
+          <span class="badge tabbr">Tabbr</span>
+          @if (choicesOf(row.tabbrField); as choices) {
+            <select [(ngModel)]="entry.tabbr" (ngModelChange)="touch()" [class.invalid]="hasIssue(i, 'values') && !isChoice(choices, entry.tabbr)" style="width: 9rem;">
+              <option value="" disabled>{{ t('mapping.chooseValue') }}</option>
+              @for (choice of withCurrent(choices, entry.tabbr); track choice.value) {
+                <option [value]="choice.value">{{ choice.name }}</option>
+              }
+            </select>
+          } @else {
+            <input type="text" [(ngModel)]="entry.tabbr" (ngModelChange)="touch()" [class.invalid]="hasIssue(i, 'values') && !entry.tabbr.trim()" [placeholder]="t('mapping.tabbrValue')" style="width: 9rem;" spellcheck="false" />
+          }
+          <button type="button" (click)="row.valueMap.splice(j, 1); touch()">✕</button>
+        </div>
+      }
+      <button type="button" (click)="addValue(row)">{{ t('mapping.addValue') }}</button>
+    </div>
+  </ng-template>
+
+  <ng-template #codeBlock let-row="row" let-dir="dir" let-full="full">
+    <div class="code-title">
+      <strong>{{ dir === 'push' ? 'Tabbr → ZweefApp' : 'ZweefApp → Tabbr' }}</strong>
+      @if (hasOwnCode(row, dir)) {
+        <span class="badge" style="background: #b4530933; color: #b45309;">{{ t('mapping.ownCode') }}</span>
+        <button type="button" (click)="useGenerated(row, dir)">{{ t('mapping.useGenerated') }}</button>
+      } @else {
+        <button type="button" (click)="customize(row, dir)">{{ t('mapping.customize') }}</button>
+      }
+      @if (!full) {
+        <button type="button" (click)="openFullscreen(row)" [title]="t('mapping.fullscreen')" [attr.aria-label]="t('mapping.fullscreen')">⛶</button>
+      }
+    </div>
+    @if (editorType(); as editor) {
+      <div [class.editor-host]="full">
+        <ng-container *ngComponentOutlet="editor; inputs: editorInputs(row, dir, !!full)" />
+      </div>
+    } @else {
+      <textarea rows="6" style="width: 100%; font-family: monospace;" [readOnly]="!hasOwnCode(row, dir)" [ngModel]="codeOf(row, dir)" (ngModelChange)="setOwnCode(row, dir, $event)"></textarea>
+    }
+  </ng-template>
+
+  @if (fullscreenRow(); as row) {
+    <dialog class="overlay" #fullscreenDialog (close)="closeFullscreen()">
+      <header>
+        <span class="badge za">ZweefApp</span> <strong>{{ zaLabel(row) }}</strong> ↔ <span class="badge tabbr">Tabbr</span> <strong>{{ row.tabbrField }}</strong>
+        <span class="spacer"></span>
+        <button type="button" (click)="closeFullscreen()">{{ t('mapping.closeFullscreen') }}</button>
+      </header>
+      <div class="columns" [class.two]="row.push && row.pull">
+        @if (row.push) { <div class="column"><ng-container *ngTemplateOutlet="codeBlock; context: { row: row, dir: 'push', full: true }" /></div> }
+        @if (row.pull) { <div class="column"><ng-container *ngTemplateOutlet="codeBlock; context: { row: row, dir: 'pull', full: true }" /></div> }
+      </div>
+    </dialog>
+  }
+</div>
